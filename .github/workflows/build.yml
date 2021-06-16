@@ -37,7 +37,7 @@ jobs:
       - name: Build
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ghcr.io/lab42/releaser
+          image: ghcr.io/lab42/helm
           tags: latest ${{ env.RELEASE_VERSION }}
           dockerfiles: ./Dockerfile
           build-args: version=${{ env.HELM_VERSION }}
