@@ -17,20 +17,11 @@ jobs:
 
       - name: Set release version
         run: |
-          date=$(date +%y.%-m)
-          sha=$(git rev-parse --short HEAD)
           latest_version=$(curl --silent "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest" | \
           jq -r '.tag_name' | \
           cut -d'.' -f3 | \
           cut -d'-' -f1)
-          echo "RELEASE_VERSION=v${date}.$((${latest_version}+1))-${sha}" >> $GITHUB_ENV
-
-      - name: Authenticate
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.TOKEN }}
+          echo "RELEASE_VERSION=v$(date +%y.%-m).$((${latest_version}+1))-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build
         uses: redhat-actions/buildah-build@v2
@@ -40,6 +31,16 @@ jobs:
           dockerfiles: ./Dockerfile
           build-args: version=${{ env.HELM_VERSION }}
           layers: true
+
+      - name: Push
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ghcr.io/lab42/helm
+          tags: latest ${{ env.RELEASE_VERSION }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.TOKEN }}
 
       - name: Release
         env:
