@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set Helm version
+        run: |
+          echo "HELM_VERSION=$( curl --silent "https://api.github.com/repos/helm/helm/releases/latest" | \
+          jq -r .tag_name)" >> $GITHUB_ENV
+
+      - name: Set release version
+        run: |
+          date=$(date +%y.%-m)
+          sha=$(git rev-parse --short HEAD)
+          latest_version=$(curl --silent "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest" | \
+          jq -r '.tag_name' | \
+          cut -d'.' -f3 | \
+          cut -d'-' -f1)
+          echo "RELEASE_VERSION=v${date}.$((${latest_version}+1))-${sha}" >> $GITHUB_ENV
+
+      - name: Authenticate
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.TOKEN }}
+
+      - name: Build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/lab42/releaser
+          tags: latest ${{ env.RELEASE_VERSION }}
+          dockerfiles: ./Dockerfile
+          build-args: version=${{ env.HELM_VERSION }}
+          layers: true
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq -y install git-extras
+          git pull --tags
+          gh release create ${{ env.RELEASE_VERSION }} --notes "$(git changelog -l --stdout --prune-old --tag ${{ env.RELEASE_VERSION }} --stdout)"

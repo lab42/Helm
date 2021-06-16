@@ -1,0 +1,25 @@
+#!/bin/ash
+
+if [ ! -z "${INPUT_KUBECONFIG}" ]
+then
+    echo "Found kubeconfig. Generating ~/.kube/config"
+    mkdir -p ~/.kube
+    echo  "${INPUT_KUBECONFIG}" >  ~/.kube/config
+    chmod go-r ~/.kube/config
+fi
+
+if [ ! -z "${INPUT_REPOSITORY}" ]
+then
+    echo "Adding repository: ${INPUT_REPOSITORY}"
+    helm repo add ${INPUT_REPOSITORY}
+fi
+
+if [ ! -z "${INPUT_HELM}" ]
+then
+    helm ${INPUT_HELM}
+fi
+
+if [ ! -z "${INPUT_kubectl}" ]
+then
+    kubectl ${INPUT_kubectl}
+fi
