@@ -1,6 +1,6 @@
 # Helm
 
-![Build](https://github.com/lab42/Docker-Helm/actions/workflows/build.yml/badge.svg?branch=main)
+![Build](https://github.com/lab42/Helm/actions/workflows/build.yml/badge.svg?branch=main)
 
 
 Github docker action with Helm and Kubectl. 

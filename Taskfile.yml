@@ -1,0 +1,51 @@
+# https://taskfile.dev
+
+version: "3"
+
+silent: true
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  install:
+    desc: Install packages used in this repo via Homebrew
+    deps: [check:commands]
+    cmds:
+      - brew bundle install
+
+  release:
+    desc: Create a new release.
+    cmds:
+      - gh workflow run build.yml
+    preconditions:
+      - sh: task gh:login
+        msg: Cannot login to Github.
+
+  token:edit:
+    desc: Edit encrypted Github token.
+    cmds:
+      - sops --age age1lafvyfrve4uj2zk0tzkkkaw528yr0h3gcy962tztknhgc887q3cqjfrmsd .token
+      
+  # private tasks
+  has:command:
+    preconditions:
+      - sh: command -v {{ .cmd }}
+        msg: Run `task install` first.
+
+  check:commands:
+    cmds:
+      - |
+        cmds={{.commands}}
+        for i in "${cmds[@]}"; do task has:command cmd=${i}; done
+    vars:
+      commands: ("brew" "sops" "age" "gh")
+
+  gh:login:
+    cmds:
+      - task decrypt:token | gh auth login --with-token
+
+  decrypt:token:
+    cmds:
+      - sops --decrypt .token

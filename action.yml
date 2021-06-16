@@ -12,7 +12,7 @@ inputs:
     description: 'The kubectl command to run (excluding kubectl)'
     required: true
   repository:
-    description: 'The Helm repository will be automatically configured id present. Example: "test https:domain.tld/chart"'
+    description: 'The Helm repository will be automatically configured if present. Example: "test https:domain.tld/chart"'
     required: false
   kubeconfig:
     description: 'The contents of this input will be appended to ~/.kube/config'
