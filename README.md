@@ -2,8 +2,9 @@
 
 ![Build](https://github.com/lab42/Helm/actions/workflows/build.yml/badge.svg?branch=main)
 
+Github docker action with Helm 3 and Kubectl. 
 
-Github docker action with Helm and Kubectl. 
+This action is automatically build to have the latest Helm 3 release every month. If you use this and need and update then you can reach out and we can dispatch a build.
 
 
 ## Usage
