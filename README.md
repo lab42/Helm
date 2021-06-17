@@ -6,6 +6,7 @@ Github docker action with Helm 3 and Kubectl.
 
 This action is automatically build to have the latest Helm 3 release every month. If you use this and need and update then you can reach out and we can dispatch a build.
 
+The image has also been designed to be as small as possible with only 39MB. Feel free to pull it in from ghcr.io/lab42/helm:latest if you want to reuse it.
 
 ## Usage
 
